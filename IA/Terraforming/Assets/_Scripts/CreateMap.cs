@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreateMap : MonoBehaviour {
+public class CreateMap : MonoBehaviour
+{
 
     int X, Y;
     int min, max;
@@ -16,7 +17,7 @@ public class CreateMap : MonoBehaviour {
 
     float random;
 
-    float scale = 20f;
+    float scale = 10f;
 
 	void Start ()
     {
@@ -26,8 +27,6 @@ public class CreateMap : MonoBehaviour {
 
 	void Update ()
     {
-
-
         if (Input.GetKeyDown(KeyCode.A))
         {
             HeightRandom();
@@ -36,13 +35,21 @@ public class CreateMap : MonoBehaviour {
         {
             ResetHeight();
         }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            SayHeights();
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            FixHeights();
+        }
     }
 
     public void GetValeus()
     {
-        X = 32;
-        Y = 32;
-        terreno.terrainData.heightmapResolution = X + 1;
+        X = 33;
+        Y = 33;
+        terreno.terrainData.heightmapResolution = X ;
         terreno.terrainData.size = new Vector3(X, scale, Y);
         heights = new float[X,Y];
 
@@ -51,17 +58,60 @@ public class CreateMap : MonoBehaviour {
         
     }
 
-    void HeightRandom()
+    void SayHeights()
     {
         for (int i = 0; i < X; i++)
         {
             for (int j = 0; j < Y; j++)
             {
-                Debug.Log("Alterando as alturas!");
+                //if (heights[i,j] == 0)
+                if (i % 4 == 0 && j % 4 == 0)
+                    Debug.Log("(" + i + "," + j + ") -> " + heights[i,j]);
+            }
+        }
+    }
+
+    void FixHeights()
+    {
+        for (int i = 0; i < X-1; i++)
+        {
+            for (int j = 0; j < Y-1; j++)
+            {
+                if (i == 0 && j > 0)
+                    if (heights[i, j] > ((heights[i, j - 1] + heights[i, j + 1]) / 2f) + 0.1f)
+                        heights[i, j] -= 0.05f; 
+                else if (i > 0 && j == 0)
+                        if (heights[i, j] > ((heights[i - 1, j] + heights[i + 1, j]) / 2f) + 0.1f)
+                            heights[i, j] -= 0.05f;
+                else if (i > 0 && j > 0)
+                        if (heights[i, j] > ((heights[i-1, j] + heights[i-1, j-1] + heights[i, j-1] + heights[i+1, j-1]
+                                            + heights[i+1, j] + heights[i+1, j+1] + heights[i, j+1] + heights[i-1, j+1]) / 8f) + 0.1f)
+                            heights[i, j] -= 0.05f;
+            }
+        }
+    }
+
+    void HeightRandom()
+    {
+        Debug.Log("Alterando as alturas!");
+        for (int i = 0; i < X; i++)
+        {
+            for (int j = 0; j < Y; j++)
+            {
                 //random = Random.Range(0.0f, 1.0f);
                 //DoSmoth(i, j);
                 //heights[i,j] = random;
-                DoRandom(i, j);
+                DoRandom1(i, j);
+            }
+        }
+        for (int i = 0; i < X; i++)
+        {
+            for (int j = 0; j < Y; j++)
+            {
+                //random = Random.Range(0.0f, 1.0f);
+                //DoSmoth(i, j);
+                //heights[i,j] = random;
+                DoRandom2(i, j);
             }
         }
         terreno.terrainData.SetHeights(0, 0, heights);
@@ -163,61 +213,107 @@ public class CreateMap : MonoBehaviour {
         //terreno.terrainData.SetHeights(0, 0, heights);
     }
 
-    private void DoRandom(int x, int y)
+    private void DoRandom1(int x, int y)
     {
-        //Debug.Log("x: " + x + "  y: " + y);
         if ((x % 4) == 0 && (y % 4) == 0)
         {
-            // os nr de 4 em 4 seram random 0, 4, 8, 12, 16, 20, 24, 28, 32
-            random = Random.Range(0.0f, 1.0f);
+            //os nr de 4 em 4 seram random 0, 4, 8, 12, 16, 20, 24, 28, 32
+
+            if (x == 0 && y == 0)
+                random = Random.Range(0.0f, 2.0f);
+            else if (x > 0 && y == 0)
+                random = Random.Range(heights[x - 4, 0] - 0.1f, heights[x - 4, 0] + 0.1f);
+            else if (x == 0 && y > 0)
+                random = Random.Range(heights[0, y - 4] - 0.1f, heights[0, y - 4] + 0.1f);
+            else if (x > 0 && y > 0)
+                random = Random.Range((heights[x - 4, y] + heights[x, y - 4]) / 2f - 0.1f, (heights[x - 4, y] + heights[x, y - 4]) / 2f + 0.1f);
+
+            //random = Random.Range(0.0f, 1.0f);
             heights[x, y] = random;
         }
-        else
+    }
+    private void DoRandom2(int x, int y)
+    {
+        if ((x % 4) != 0 || (y % 4) != 0)
         {
             // os nr nao multiplos de 4... procura se o multiplo de 4 mais atraz e mais abaixo e faz se a media!
 
             int xT = x;
             int yT = y;
+
+            while (xT % 4 != 0) xT--;
+            while (yT % 4 != 0) yT--;
+
+            float h = 0;
             
-            int ok = 0;
+            int tempX, tempY;
 
-            while (ok == 0)
+            if (xT < 29 && yT < 29)
             {
-                if (xT % 4 != 0)
-                    xT--;
-                else if (xT % 4 == 0)
-                {
-                    if (yT % 4 != 0)
-                        yT--;
-                    else if (yT % 4 == 0)
-                    {
-                        float h;
-                        Debug.Log("xT: " + xT + "  yT: " + yT);
+                tempX = x - xT;
+                tempY = y - yT;
 
+                
 
-                        if (xT == 28 || yT == 28)
-                        {
-                            h = (heights[xT, yT]);
-                        }
-                        else
-                        {
-                            h = (heights[xT, yT] + heights[xT + 4, yT] + heights[xT, yT + 4] + heights[xT + 4, yT + 4]) / 4;
-                        }
-                        heights[x, y] = h;
-                        ok++;
-                    }
-                }
+                float deltaX = (x - xT) / 4f;
+                float deltaY = (y - yT) / 4f;
+
+                float med = (heights[xT, yT] + heights[xT + 4, yT] + heights[xT, yT + 4] + heights[xT + 4, yT + 4]) / 4f;
+                //h = ((heights[xT, yT] - heights[xT + 4, yT]) * deltaX +
+                //    (heights[xT + 4, yT] - heights[xT + 4, yT + 4]) * deltaY +
+                //     (heights[xT, yT + 4] - heights[xT + 4, yT + 4]) * deltaX +
+                //     (heights[xT, yT] - heights[xT, yT + 4] * deltaY)) / 4f;
+
+                //if (tempX == 0)
+                //{
+                //    if (tempY == 1)
+                //        h = (heights[xT, yT] * 0.9f + heights[xT, yT + 4] * 0.1f) / 2;
+                //    else if (tempY == 2)
+                //        h = (heights[xT, yT] + heights[xT, yT + 4]) / 2;
+                //    else if (tempY == 3)
+                //        h = (heights[xT, yT] * 0.1f + heights[xT, yT + 4] * 0.9f) / 2;
+                //}
+                //else if (tempX == 1)
+                //{
+                //    if (tempY == 0)
+                //        h = (heights[xT, yT] * 0.9f + heights[xT + 4, yT] * 0.1f) / 2;
+                //    else if (tempY == 1)
+                //        h = ((heights[xT, yT]) * 0.55f + (heights[xT, yT + 4]) * 0.2f + (heights[xT + 4, yT] + heights[xT + 4, yT + 4]) * 0.25f) / 4f;
+                //    else if (tempY == 2)
+                //        h = ((heights[xT, yT] + heights[xT, yT + 4]) * 0.75f + (heights[xT + 4, yT] + heights[xT + 4, yT + 4]) * 0.25f) / 4f;
+                //    else if (tempY == 3)
+                //        h = ((heights[xT, yT]) * 0.2f + (heights[xT, yT + 4]) * 0.55f + (heights[xT + 4, yT] + heights[xT + 4, yT + 4]) * 0.25f) / 4f;
+                //}
+                //else if (tempX == 2)
+                //{
+                //    if (tempY == 0)
+                //        h = (heights[xT, yT] + heights[xT + 4, yT]) / 2;
+                //    else if (tempY == 1)
+                //        h = ((heights[xT, yT] + heights[xT + 4, yT]) * 0.75f + (heights[xT, yT + 4] + heights[xT + 4, yT + 4]) * 0.25f) / 4f;
+                //    else if (tempY == 2)
+                //        h = (heights[xT, yT] + heights[xT + 4, yT] + heights[xT, yT + 4] + heights[xT + 4, yT + 4]) / 4f;
+                //    else if (tempY == 3)
+                //        h = ((heights[xT, yT] + heights[xT + 4, yT]) * 0.25f + (heights[xT, yT + 4] + heights[xT + 4, yT + 4]) * 0.75f) / 4f;
+                //}
+                //else if (tempX == 3)
+                //{
+                //    if (tempY == 0)
+                //        h = (heights[xT, yT] * 0.1f + heights[xT + 4, yT] * 0.9f) / 2;
+                //    else if (tempY == 1)
+                //        h = (((heights[xT, yT]) + (heights[xT, yT + 4])) * 0.25f + (heights[xT + 4, yT] * 0.55f + heights[xT + 4, yT + 4]) * 0.2f) / 4f;
+                //    else if (tempY == 2)
+                //        h = ((heights[xT, yT] + heights[xT, yT + 4]) * 0.25f + (heights[xT + 4, yT] + heights[xT + 4, yT + 4]) * 0.75f) / 4f;
+                //    else if (tempY == 3)
+                //        h = (((heights[xT, yT]) + (heights[xT, yT + 4])) * 0.25f + (heights[xT + 4, yT] * 0.2f + heights[xT + 4, yT + 4]) * 0.55f) / 4f;
+                //}
+
+                //h = (heights[xT, yT] + heights[xT + 4, yT] + heights[xT, yT + 4] + heights[xT + 4, yT + 4]) / 4f;
+                //heights[x, y] = h;
+                heights[x, y] = med;
+                //heights[x, y] = h + med;
             }
+
         }
-
-    }
-
-    float CalculateHeight(int x, int y)
-    {
-        float xCoord = (float)x / X * scale;
-        float yCoord = (float)y / Y * scale;
-
-        return Mathf.PerlinNoise(xCoord, yCoord);
     }
 
     void ResetHeight()
