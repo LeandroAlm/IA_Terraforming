@@ -39,15 +39,15 @@ public class Move : MonoBehaviour
         //camera.transform.eulerAngles = new Vector3(-rotY, rotX, 0);
 
         if (Input.GetAxis("Horizontal") > 0)
-            LocalVelocity.x = Speed * Time.deltaTime;
-        if (Input.GetAxis("Horizontal") < 0)
             LocalVelocity.x = -Speed * Time.deltaTime;
+        if (Input.GetAxis("Horizontal") < 0)
+            LocalVelocity.x = Speed * Time.deltaTime;
         if (Input.GetAxis("Horizontal") == 0)
             LocalVelocity.x = 0;
         if (Input.GetAxis("Vertical") > 0)
-            LocalVelocity.z = Speed * Time.deltaTime;
-        if (Input.GetAxis("Vertical") < 0)
             LocalVelocity.z = -Speed * Time.deltaTime;
+        if (Input.GetAxis("Vertical") < 0)
+            LocalVelocity.z = Speed * Time.deltaTime;
         if (Input.GetAxis("Vertical") == 0)
             LocalVelocity.z = 0;
 

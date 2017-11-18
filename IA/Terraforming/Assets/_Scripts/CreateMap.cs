@@ -33,7 +33,7 @@ public class CreateMap : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             HeightRandom();
-            Player.position = posDefault;
+            Player.position = new Vector3(Random.Range(1f, 256.0f), 20, Random.Range(1f, 256.0f));
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -52,8 +52,8 @@ public class CreateMap : MonoBehaviour
 
     public void GetValeus()
     {
-        X = 33;
-        Y = 33;
+        X = 257;
+        Y = 257;
         terreno.terrainData.heightmapResolution = X ;
         terreno.terrainData.size = new Vector3(X, scale, Y);
         heights = new float[X,Y];
@@ -64,29 +64,6 @@ public class CreateMap : MonoBehaviour
 
     void CorrectHeights(int x, int y)
     {
-        //if ((x % 4) != 0 || (y % 4) != 0)
-        //{
-        //    float altura = 0;
-        //    int xT = x;
-        //    int yT = y;
-
-        //    if (xT < 29 && yT < 29)
-        //    {
-        //        while (xT % 4 != 0) xT--;
-        //        while (yT % 4 != 0) yT--;
-
-        //        float h1 = heights[xT, yT + 4];
-        //        float h2 = heights[xT + 4, yT + 4];
-        //        float h3 = heights[xT, yT];
-        //        float h4 = heights[xT + 4, yT];
-
-        //        float altura12 = (1 - (x - xT)) * h1 + (x - xT) * h2;
-        //        float altura34 = (1 - (x - xT)) * h3 + (x - xT) * h4;
-        //        altura = (1 - (y - h1)) * altura12 + (y - h1) * altura34;
-        //        heights[x, y] = altura;
-        //    }
-        //}
-
         if ((x % 4) != 0 || (y % 4) != 0)
         {
             int xT = x;
@@ -94,7 +71,7 @@ public class CreateMap : MonoBehaviour
             while (xT % 4 != 0) xT--;
             while (yT % 4 != 0) yT--;
 
-            if (xT < 29 && yT < 29)
+            if (xT < 249 && yT < 249)
             {
                 float altura = 0;
                 Vector2 vetor1, vetor2, vetor3, vetor4;
@@ -127,13 +104,6 @@ public class CreateMap : MonoBehaviour
                      (heights[xT, yT + 4] - heights[xT + 4, yT + 4]) * altura12 +
                      (heights[xT, yT + 4] - heights[xT, yT] * altura13)) / 4f;
                 heights[x, y] = Height + med;
-
-
-                //h = ((heights[xT, yT] - heights[xT + 4, yT]) * deltaX +
-                //    (heights[xT + 4, yT] - heights[xT + 4, yT + 4]) * deltaY +
-                //     (heights[xT, yT + 4] - heights[xT + 4, yT + 4]) * deltaX +
-                //     (heights[xT, yT] - heights[xT, yT + 4] * deltaY)) / 4f;
-
             }
         }
     }
@@ -301,13 +271,13 @@ public class CreateMap : MonoBehaviour
             //os nr de 4 em 4 seram random 0, 4, 8, 12, 16, 20, 24, 28, 32
 
             if (x == 0 && y == 0)
-                random = Random.Range(0.0f, 2.0f);
+                random = Random.Range(0.0f, 3.0f);
             else if (x > 0 && y == 0)
-                random = Random.Range(heights[x - 4, 0] - 0.1f, heights[x - 4, 0] + 0.1f);
+                random = Random.Range(heights[x - 4, 0] - 0.15f, heights[x - 4, 0] + 0.15f);
             else if (x == 0 && y > 0)
-                random = Random.Range(heights[0, y - 4] - 0.1f, heights[0, y - 4] + 0.1f);
+                random = Random.Range(heights[0, y - 4] - 0.15f, heights[0, y - 4] + 0.15f);
             else if (x > 0 && y > 0)
-                random = Random.Range((heights[x - 4, y] + heights[x, y - 4]) / 2f - 0.1f, (heights[x - 4, y] + heights[x, y - 4]) / 2f + 0.1f);
+                random = Random.Range((heights[x - 4, y] + heights[x, y - 4]) / 2f - 0.15f, (heights[x - 4, y] + heights[x, y - 4]) / 2f + 0.15f);
 
             //random = Random.Range(0.0f, 1.0f);
             heights[x, y] = random;
@@ -329,7 +299,7 @@ public class CreateMap : MonoBehaviour
             
             int tempX, tempY;
 
-            if (xT < 29 && yT < 29)
+            if (xT < 249 && yT < 249)
             {
                 tempX = x - xT;
                 tempY = y - yT;
