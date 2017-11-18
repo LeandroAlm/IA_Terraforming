@@ -15,6 +15,9 @@ public class CreateMap : MonoBehaviour
     public GameObject prefab;
     float[,] heights;
 
+    public Transform Player;
+    Vector3 posDefault = new Vector3(16.5f, 20f, 16.5f);
+
     float random;
 
     float scale = 10f;
@@ -27,19 +30,21 @@ public class CreateMap : MonoBehaviour
 
 	void Update ()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             HeightRandom();
+            Player.position = posDefault;
         }
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             ResetHeight();
+            Player.position = posDefault;
         }
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             SayHeights();
         }
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             FixHeights();
         }
@@ -55,7 +60,82 @@ public class CreateMap : MonoBehaviour
 
         // Alterar locais do terreno!!!
         terreno.terrainData.SetHeights(0, 0, heights);
-        
+    }
+
+    void CorrectHeights(int x, int y)
+    {
+        //if ((x % 4) != 0 || (y % 4) != 0)
+        //{
+        //    float altura = 0;
+        //    int xT = x;
+        //    int yT = y;
+
+        //    if (xT < 29 && yT < 29)
+        //    {
+        //        while (xT % 4 != 0) xT--;
+        //        while (yT % 4 != 0) yT--;
+
+        //        float h1 = heights[xT, yT + 4];
+        //        float h2 = heights[xT + 4, yT + 4];
+        //        float h3 = heights[xT, yT];
+        //        float h4 = heights[xT + 4, yT];
+
+        //        float altura12 = (1 - (x - xT)) * h1 + (x - xT) * h2;
+        //        float altura34 = (1 - (x - xT)) * h3 + (x - xT) * h4;
+        //        altura = (1 - (y - h1)) * altura12 + (y - h1) * altura34;
+        //        heights[x, y] = altura;
+        //    }
+        //}
+
+        if ((x % 4) != 0 || (y % 4) != 0)
+        {
+            int xT = x;
+            int yT = y;
+            while (xT % 4 != 0) xT--;
+            while (yT % 4 != 0) yT--;
+
+            if (xT < 29 && yT < 29)
+            {
+                float altura = 0;
+                Vector2 vetor1, vetor2, vetor3, vetor4;
+                float Y1 = 0, Y2 = 0, Y3 = 0, Y4 = 0;
+
+
+                vetor1 = new Vector2(xT, yT + 4);
+                vetor2 = new Vector2(xT + 4, yT + 4);
+                vetor3 = new Vector2(xT, yT);
+                vetor4 = new Vector2(xT + 4, yT);
+
+
+                //alturas
+                Y1 = heights[xT, yT + 4];
+                Y2 = heights[xT + 4, yT + 4];
+                Y3 = heights[xT, yT];
+                Y4 = heights[xT + 4, yT + 4];
+
+                // interpolacao bilinear
+                float altura12 = (1 - (x - vetor1.x)) * Y1 + (x - vetor1.x) * Y2;
+                float altura34 = (1 - (x - vetor3.x)) * Y3 + (x - vetor3.x) * Y4;
+                float altura13 = (1 - (x - vetor1.x)) * Y1 + (x - vetor1.x) * Y3;
+                float altura24 = (1 - (x - vetor2.x)) * Y2 + (x - vetor2.x) * Y4;
+                //altura = (1 - (y - vetor1.y)) * altura12 + (y - vetor1.y) * altura34;
+                //float alturaAux = (1 - (y - vetor1.y)) * altura13 + (y - vetor1.y) * altura24;
+                //float Height = (1 - (y - vetor1.y)) * altura + (y - vetor1.y) * alturaAux;
+                float med = (heights[xT, yT] + heights[xT + 4, yT] + heights[xT, yT + 4] + heights[xT + 4, yT + 4]) / 4f;
+                float Height = ((heights[xT, yT] - heights[xT + 4, yT]) * altura34 +
+                    (heights[xT + 4, yT + 4] - heights[xT + 4, yT]) * altura24 +
+                     (heights[xT, yT + 4] - heights[xT + 4, yT + 4]) * altura12 +
+                     (heights[xT, yT + 4] - heights[xT, yT] * altura13)) / 4f;
+                heights[x, y] = Height + med;
+
+
+                //h = ((heights[xT, yT] - heights[xT + 4, yT]) * deltaX +
+                //    (heights[xT + 4, yT] - heights[xT + 4, yT + 4]) * deltaY +
+                //     (heights[xT, yT + 4] - heights[xT + 4, yT + 4]) * deltaX +
+                //     (heights[xT, yT] - heights[xT, yT + 4] * deltaY)) / 4f;
+
+            }
+        }
     }
 
     void SayHeights()
@@ -111,7 +191,8 @@ public class CreateMap : MonoBehaviour
                 //random = Random.Range(0.0f, 1.0f);
                 //DoSmoth(i, j);
                 //heights[i,j] = random;
-                DoRandom2(i, j);
+                //DoRandom2(i, j);
+                CorrectHeights(i, j);
             }
         }
         terreno.terrainData.SetHeights(0, 0, heights);
