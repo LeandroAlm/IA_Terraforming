@@ -70,5 +70,10 @@ public class Move : MonoBehaviour
         rotX += Input.GetAxis("Mouse X");
         rotY += Input.GetAxis("Mouse Y");
         rotY = Mathf.Clamp(rotY, -50, 30);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Screen.lockCursor = false;
+        }
     }
 }
